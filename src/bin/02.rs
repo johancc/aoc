@@ -39,17 +39,24 @@ fn part_one(input: &str) -> Option<u128> {
 }
 
 fn part_two(input: &str) -> Option<u128> {
-   Some(parse_input(input).iter().filter(|nums| {
-    if is_safe(nums) { return true; }
-    for i in 0..nums.len() {
-        let mut nums_without_i = nums.to_vec();
-        nums_without_i.remove(i);
-        if is_safe(&nums_without_i) {
-            return true;
-        }
-    }
-    return false;
-   }).count() as u128)
+    Some(
+        parse_input(input)
+            .iter()
+            .filter(|nums| {
+                // First check if it's already safe
+                is_safe(nums) ||
+                // Then check if removing any single number makes it safe
+                (0..nums.len()).any(|i| {
+                    let sequence: Vec<_> = nums.iter()
+                        .enumerate()
+                        .filter(|&(idx, _)| idx != i)
+                        .map(|(_, &num)| num)
+                        .collect();
+                    is_safe(&sequence)
+                })
+            })
+            .count() as u128
+    )
 }
 
 #[cfg(test)]
